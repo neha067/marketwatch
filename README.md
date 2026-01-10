@@ -1,10 +1,19 @@
+# 📈 MarketWatch — Real-Time Trading Widget
+
+A real-time market price widget built using **Next.js, React, and TypeScript**.  
+This project simulates a live trading feed, visualizes price trends, and allows users to set safety alerts.
+
+## 🔗 Live Demo  
+**https://marketwatch-lake.vercel.app/**
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
-First, run the development server:
+run the development server:
 
 ```bash
+npm install &
 npm run dev
 # or
 yarn dev
@@ -16,21 +25,60 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Real-time price stream (pseudo WebSocket)
+- Line chart showing last 60 seconds of data
+- Pause / Resume live feed
+- Threshold-based visual alerts
+- Price trend indicator
+- Memory-safe subscriptions
+- Optimized re-rendering for high-frequency updates
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+## Asynchronous Data Stream
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+A client-side **PriceFeed** service simulates a WebSocket connection.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+It:
+- Emits a random price between **100.00 and 200.00**
+- Publishes one update every **2 seconds**
+- Supports multiple subscribers
+- Automatically starts and stops based on active listeners
 
-## Deploy on Vercel
+The React hook `usePriceFeed` manages this stream by subscribing on mount and unsubscribing on pause or unmount, ensuring no memory leaks or background activity.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Pause / Resume Strategy
+
+When the feed is paused, the widget **fully unsubscribes** from the data stream and stops generating prices.  
+When resumed, a **new live stream** is started instead of replaying missed values.
+
+### Why this approach?
+
+In real trading systems, users care about the **current market price**, not historical values that occurred while they were away. Replaying buffered data could:
+
+- Trigger incorrect alerts
+- Distort the trend visualization
+- Consume unnecessary memory
+
+Starting fresh ensures accuracy, performance, and correct real-time behavior.
+
+
+
+
+
+## Chart Performance Trade-offs
+
+The chart displays only the **last 60 seconds** of price data (30 ticks maximum).
+
+To ensure high performance:
+- A sliding window is used to limit memory growth
+- The chart component is memoized (`React.memo`)
+- Only the chart re-renders when new prices arrive
+
+### Trade-off
+
+Older historical data is discarded in favor of performance and responsiveness.  
+This matches real-time trading dashboards where **live trends matter more than long-term history**.
+
