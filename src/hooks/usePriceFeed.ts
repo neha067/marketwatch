@@ -3,7 +3,7 @@ import { PriceFeed } from "@/services/priceFeed";
 
 export function usePriceFeed(paused: boolean) {
   const feedRef = useRef<PriceFeed | null>(null);
-  const [prices, setPrices] = useState<number[]>([]);
+  const [prices, setPrices] = useState<{ price: number; time: string }[]>([]);
 
   if (!feedRef.current) {
     feedRef.current = new PriceFeed();

@@ -1,4 +1,4 @@
-export type PriceListener = (price: number) => void;
+export type PriceListener = (price: { price: number; time: string }) => void;
 
 export class PriceFeed {
   private intervalId: NodeJS.Timeout | null = null;
@@ -13,7 +13,9 @@ export class PriceFeed {
 
     this.intervalId = setInterval(() => {
       const price = this.generatePrice();
-      this.listeners.forEach((cb) => cb(price));
+      const time = new Date().toISOString();
+
+      this.listeners.forEach((cb) => cb({price, time}));
     }, 2000);
   }
 

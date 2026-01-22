@@ -13,7 +13,9 @@ export default function MarketWidget() {
   );
   const [inputError, setInputError] = useState<string | null>(null);
 
-  const prices = usePriceFeed(paused);
+  const priceData = usePriceFeed(paused);
+
+  const prices = useMemo(() => priceData.map((p) => p.price), [priceData]);
 
   const latest = prices.at(-1);
   const previous = prices.at(-2);
@@ -95,7 +97,7 @@ export default function MarketWidget() {
         </div>
       </div>
       <div className="mt-4">
-      <PriceChart prices={prices} />
+      <PriceChart priceData={priceData} />
       </div>
     </div>
   );
